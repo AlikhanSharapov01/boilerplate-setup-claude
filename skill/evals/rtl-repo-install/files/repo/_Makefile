@@ -1,0 +1,10 @@
+TOP ?= core_top
+RTL := $(wildcard rtl/*.sv)
+lint:
+	verilator --lint-only -Wall -Irtl rtl/$(TOP).sv
+sim:
+	iverilog -g2012 -o build/sim.vvp -Irtl $(RTL) tb/tb_$(TOP).sv && vvp build/sim.vvp
+wave:
+	gtkwave build/dump.vcd
+clean:
+	rm -rf build/*

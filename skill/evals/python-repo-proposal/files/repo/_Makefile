@@ -1,0 +1,11 @@
+.PHONY: install test lint run migrate
+install:
+	pip install -e '.[dev]'
+test:
+	pytest -q tests
+lint:
+	ruff check src tests && ruff format --check src tests && mypy src
+run:
+	uvicorn invoicer.api:app --reload
+migrate:
+	alembic upgrade head

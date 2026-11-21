@@ -1,0 +1,8 @@
+schema_version: "1.1"
+name: python-repo-proposal
+expected_outcome: |
+  Without a go-ahead the skill only proposes: it inspects the Python repo, drafts a project
+  CLAUDE.md with the real Makefile commands and the generated directory marked do-not-touch,
+  lists the global files it would create in ~/.claude, and asks for a go-ahead. Nothing is written.
+context:
+  scaffold_script: place-files.sh
