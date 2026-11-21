@@ -1,0 +1,9 @@
+schema_version: "1.1"
+name: rtl-repo-install
+expected_outcome: |
+  With an explicit go-ahead the skill installs the global files exactly as embedded, merges the
+  existing ~/.claude/settings.json without losing keys, backs up replaced files, rewrites the
+  project CLAUDE.md keeping its RTL facts and dropping rules the global file already covers,
+  smoke-tests the hook, and makes no commit.
+context:
+  scaffold_script: place-files.sh
