@@ -1,74 +1,74 @@
 # claude-boilerplate
 
-Моя база для Claude Code:
-- общие правила работы: сначала обсуждаем, правила Karpathy для кода, отчёт после работы;
-- выключенная AI-атрибуция в коммитах и PR;
-- хук, который не даёт Claude коммитить и пушить в `main`.
+My base setup for Claude Code:
+- general working rules: discuss first, Karpathy's coding guidelines, a report after the work;
+- AI attribution turned off in commits and PRs;
+- a hook that stops Claude from committing and pushing to `main`.
 
-## 1. Установка (один раз на компьютер)
+## 1. Install (once per computer)
 
 ```bash
 git clone https://github.com/AlikhanSharapov01/boilerplate-setup-claude.git && cd boilerplate-setup-claude && ./setup.sh
-# заранее посмотреть, что изменится (ничего не пишет): python3 scripts/install.py --global --dry-run
+# preview what will change first (writes nothing): python3 scripts/install.py --global --dry-run
 ```
 
-Скрипт кладёт в `~/.claude` файлы `CLAUDE.md`, `settings.json`, `hooks/guard-git.py` и `docs/`.
-Перед изменением любой существующий файл копируется в `<файл>.bak-<дата>`. Твой
-`settings.json` не затирается: новые настройки дописываются в него.
+The script puts `CLAUDE.md`, `settings.json`, `hooks/guard-git.py` and `docs/` into `~/.claude`.
+Before anything is changed, every existing file is copied to `<file>.bak-<date>`. Your
+`settings.json` is not overwritten: the new settings are merged into it.
 
-Проверка: команда должна вывести `Blocked by guard-git ...`, а затем `2`.
+Check: the command should print `Blocked by guard-git ...` followed by `2`.
 
 ```bash
 echo '{"tool_name":"Bash","tool_input":{"command":"git push origin main"},"cwd":"'$PWD'"}' \
   | python3 ~/.claude/hooks/guard-git.py; echo $?
 ```
 
-## 2. Новый проект
+## 2. New project
 
-**Через Claude (удобнее).** Открой Claude Code в папке проекта и напиши «поставь базу в этот
-проект». Skill `boilerplate-setup` посмотрит репо, заполнит `CLAUDE.md` реальными командами
-(build/test/lint/sim) и покажет план. Записывать файлы он начнёт только после «давай».
+**With Claude (easier).** Open Claude Code in the project folder and write "set up the boilerplate
+in this project". The `boilerplate-setup` skill looks at the repo, fills `CLAUDE.md` with the real
+commands (build/test/lint/sim) and shows a plan. It starts writing files only after you say "go ahead".
 
-**Руками.**
+**By hand.**
 
 ```bash
 python3 scripts/install.py --project ~/path/to/repo
 ```
 
-Эта команда кладёт в проект пустой шаблон `CLAUDE.md`, заполнить его нужно самому.
+This puts an empty `CLAUDE.md` template into the project; you fill it in yourself.
 
-Если проект открываешь в Claude Code в браузере (claude.ai/code), добавь к команде `--guard`.
-Там твой `~/.claude` не виден, поэтому хук нужно положить прямо в репо.
+If you open the project in Claude Code in the browser (claude.ai/code), add `--guard` to the command.
+Your `~/.claude` is not visible there, so the hook has to live in the repo itself.
 
-## 3. Что хук блокирует
+## 3. What the hook blocks
 
-| Блокирует | Не блокирует |
+| Blocks | Does not block |
 |---|---|
-| commit / merge / rebase / reset / tag на `main`, `master`, `develop`, `production`, `release/*` | всё на feature-ветках, включая force-push |
-| любой push в эти ветки, `push --all` | merge `main` в свою ветку |
-| удаление или переименование этих веток | `git pull` на `main` |
+| commit / merge / rebase / reset / tag on `main`, `master`, `develop`, `production`, `release/*` | anything on feature branches, including force-push |
+| any push to those branches, `push --all` | merging `main` into your branch |
+| deleting or renaming those branches | `git pull` on `main` |
 | `gh pr merge`, `gh pr review --approve` | `gh pr create` |
 
-Чтобы защитить в проекте ещё какие-то ветки, создай файл `.claude/protected-branches` и
-впиши в него по одной ветке на строку, например `staging`.
+To protect more branches in a project, create a `.claude/protected-branches` file and
+list one branch per line, for example `staging`.
 
-## 4. Как менять базу
+## 4. Changing the boilerplate
 
-| Что хочешь поменять | Где | Потом |
+| What you want to change | Where | Then |
 |---|---|---|
-| Общие правила | `global/CLAUDE.md` | `python3 scripts/install.py --global` |
-| Правила одного проекта | `CLAUDE.md` в самом проекте | ничего |
-| Хук | `global/hooks/guard-git.py` | `python3 scripts/test_guard.py`, затем `install.py --global` |
+| General rules | `global/CLAUDE.md` | `python3 scripts/install.py --global` |
+| Rules for one project | `CLAUDE.md` in that project | nothing |
+| The hook | `global/hooks/guard-git.py` | `python3 scripts/test_guard.py`, then `install.py --global` |
 
-После любой правки в `global/` или `project/` запусти `python3 scripts/build_skill.py` и
-попроси Claude обновить skill `boilerplate-setup`. Иначе skill продолжит ставить старую версию.
+After any change in `global/` or `project/`, run `python3 scripts/build_skill.py` and
+ask Claude to update the `boilerplate-setup` skill. Otherwise the skill keeps installing the old version.
 
-## Что где лежит
+## What lives where
 
 ```
-global/      то, что ставится в ~/.claude
-project/     шаблон CLAUDE.md для проекта и settings.project.json (для --guard)
-skill/       skill: SKILL.md собирается из SKILL.template.md; evals/ — тесты skill
+global/      what gets installed into ~/.claude
+project/     the project CLAUDE.md template and settings.project.json (for --guard)
+skill/       the skill: SKILL.md is built from SKILL.template.md; evals/ are the skill's tests
 scripts/     install.py, build_skill.py, test_guard.py
-_old/        твои прежние CLAUDE.md и settings.json
+_old/        your previous CLAUDE.md and settings.json
 ```
